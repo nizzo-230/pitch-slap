@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pitch Slap - 3 Idea Challenge</title>
+<style>
+:root {
+  --bg:#111318;
+  --panel:#1d222b;
+  --panel2:#252b36;
+  --text:#f7f7f7;
+  --muted:#b7bdc8;
+  --yellow:#ffd84d;
+  --blue:#7be0ff;
+  --green:#8df0a8;
+  --border:#3d4350;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:radial-gradient(circle at top,#252b36 0%,var(--bg) 58%);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  padding:28px;
+}
+.wrap{max-width:1150px;margin:0 auto}
+h1{text-align:center;font-size:clamp(2.5rem,6vw,5rem);margin:0;letter-spacing:-2px}
+.subtitle{text-align:center;color:var(--muted);font-size:1.15rem;margin:6px 0 28px}
+.cards{display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:stretch}
+.card{
+  background:var(--panel);
+  border:2px solid rgba(255,255,255,.08);
+  border-radius:24px;
+  padding:28px 20px;
+  min-height:250px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+}
+.label{text-transform:uppercase;letter-spacing:2px;font-weight:800;color:var(--muted);font-size:.9rem}
+.value{margin-top:20px;font-size:clamp(2rem,5vw,4rem);font-weight:900;line-height:1.05}
+.product .value{color:var(--yellow)}
+.feature .value{color:var(--blue)}
+.plus{display:flex;align-items:center;justify-content:center;font-size:4rem;font-weight:900}
+.controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
+button{
+  border:none;border-radius:999px;padding:15px 24px;font-size:1.1rem;font-weight:900;cursor:pointer;
+}
+.primary{background:var(--yellow);color:#111}
+.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.progress{text-align:center;color:var(--muted);margin-top:14px}
+.ideas{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+.idea{
+  background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;min-height:150px
+}
+.idea .num{font-size:.8rem;color:var(--muted);font-weight:800;letter-spacing:1px}
+.idea .p{font-size:1.25rem;font-weight:900;margin-top:10px}
+.idea .f{font-size:1.05rem;font-weight:800;color:var(--blue);margin-top:6px}
+.final{
+  margin-top:24px;background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:20px;display:none
+}
+.final h2{margin:0 0 8px}
+.choice-buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.choice-buttons button{border-radius:12px;background:var(--panel);color:var(--text);border:1px solid var(--border)}
+.winner{margin-top:18px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;display:none}
+.challenge{
+  margin-top:24px;border:1px solid var(--border);border-radius:16px;padding:16px;color:var(--muted)
+}
+.challenge strong{color:var(--text)}
+@media(max-width:760px){
+  .cards{grid-template-columns:1fr}
+  .plus{min-height:40px}
+  .ideas{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>⚡ PITCH SLAP</h1>
+  <div class="subtitle">3-Idea Innovation Challenge • 56 × 56 = 3,136 possible combinations</div>
+
+  <div class="cards">
+    <div class="card product">
+      <div class="label">🎴 Product</div>
+      <div class="value" id="product">Backpack</div>
+    </div>
+    <div class="plus">+</div>
+    <div class="card feature">
+      <div class="label">⚡ Feature</div>
+      <div class="value" id="feature">Charges Your Phone</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="generateBtn" class="primary">👋 SLAP ME! — Generate Idea 1</button>
+    <button id="saveBtn" class="secondary" disabled>Save This Idea</button>
+    <button id="skipBtn" class="secondary" disabled>Skip / Try Another</button>
+    <button id="resetBtn" class="secondary">Start Over</button>
+  </div>
+
+  <div class="progress" id="progress">0 of 3 ideas saved</div>
+
+  <div class="ideas" id="ideas"></div>
+
+  <div class="final" id="final">
+    <h2>🏆 Choose the Most Viable Idea</h2>
+    <div style="color:var(--muted)">Pick the combo with the clearest customer, real problem, and strongest value proposition.</div>
+    <div class="choice-buttons" id="choiceButtons"></div>
+    <div class="winner" id="winner"></div>
+  </div>
+
+  <div class="challenge">
+    <strong>Pitch challenge:</strong> Who would buy it? What problem does it solve? How does the feature create value? Why is your version better than the existing product?
+  </div>
+</div>
+
+<script>
+const products = ["Backpack", "Hoodie", "Sneakers", "Water Bottle", "Phone Case", "Wireless Earbuds", "Sunglasses", "Lunchbox", "Pillow", "Alarm Clock", "Desk Chair", "Mirror", "Wallet", "Keychain", "Notebook", "Hairbrush", "Toothbrush", "Socks", "Baseball Cap", "Beanie", "Gloves", "Suitcase", "Travel Mug", "Gym Bag", "Skateboard", "Phone Charger", "Laptop Case", "School ID Holder", "Smartwatch Band", "Reusable Straw", "Bike Helmet", "Mechanical Pencil", "Jacket", "Slippers", "Blanket", "Tote Bag", "Portable Speaker", "Phone Stand", "Desk Lamp", "Gaming Controller", "Keyboard", "Mouse", "Pencil Case", "Binder", "Planner", "Laptop Sleeve", "Travel Pillow", "Umbrella", "Rain Jacket", "Phone Grip", "Headphones", "Portable Charger", "Sports Bottle", "Soccer Ball", "Basketball", "Gym Locker Organizer"];
+const features = ["Never Needs Charging", "Charges Your Phone", "Find-My Tracking", "Automatically Connects to Your Phone", "Customizable Colors & Designs", "Keeps Things Cold", "Keeps Things Hot", "Self-Cleaning", "Stain-Proof", "Waterproof", "Impossible to Lose", "Anti-Theft", "Built-In Portable Charger", "Noise Canceling", "Blocks Distractions", "Helps You Focus", "Tracks Screen Time", "Reminds You What You Forgot", "Automatically Organizes Your Stuff", "Built-In AirTag-Style Tracker", "Makes It More Comfortable", "Adjusts to Your Body", "Keeps You Cool", "Keeps You Warm", "Controls Odor", "Dries Instantly", "Glows / Lights Up", "Changes Color Based on Mood", "Customizable from Your Phone", "Built-In Speaker", "Built-In Phone Stand", "Hands-Free", "One-Handed Use", "Folds Down Super Small", "Extra Hidden Storage", "Automatically Locks", "Fingerprint Unlock", "Privacy Mode", "Emergency SOS", "Location Sharing with Friends", "Tracks Fitness / Activity", "Tracks Sleep", "Tracks Hydration", "Posture Reminder", "Built-In Study / Focus Timer", "Silences Phone Distractions", "Automatically Sets Reminders", "AI-Powered Recommendations", "Voice Controlled", "Built-In Camera", "Solar Charging", "Wireless Charging", "Fast Charging", "Magnetic Attachment", "Shockproof", "Converts Into Another Product"];
+
+let ideas = [];
+let current = null;
+let usedCombos = new Set();
+
+const productEl = document.getElementById("product");
+const featureEl = document.getElementById("feature");
+const generateBtn = document.getElementById("generateBtn");
+const saveBtn = document.getElementById("saveBtn");
+const skipBtn = document.getElementById("skipBtn");
+const resetBtn = document.getElementById("resetBtn");
+const progressEl = document.getElementById("progress");
+const ideasEl = document.getElementById("ideas");
+const finalEl = document.getElementById("final");
+const choiceButtons = document.getElementById("choiceButtons");
+const winnerEl = document.getElementById("winner");
+
+function rand(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateIdea() {
+  if (ideas.length >= 3) return;
+
+  let product, feature, key, guard = 0;
+  do {
+    product = rand(products);
+    feature = rand(features);
+    key = product + "||" + feature;
+    guard++;
+  } while (usedCombos.has(key) && guard < 200);
+
+  usedCombos.add(key);
+  current = { product, feature };
+
+  productEl.style.opacity = .2;
+  featureEl.style.opacity = .2;
+
+  setTimeout(() => {
+    productEl.textContent = product;
+    featureEl.textContent = feature;
+    productEl.style.opacity = 1;
+    featureEl.style.opacity = 1;
+  }, 100);
+
+  saveBtn.disabled = false;
+  skipBtn.disabled = false;
+  generateBtn.disabled = true;
+  generateBtn.textContent = "Idea ready — save it";
+}
+
+function saveIdea() {
+  if (!current || ideas.length >= 3) return;
+
+  ideas.push(current);
+  current = null;
+  saveBtn.disabled = true;
+  skipBtn.disabled = true;
+  renderIdeas();
+
+  if (ideas.length < 3) {
+    generateBtn.disabled = false;
+    generateBtn.textContent = "👋 SLAP ME! — Generate Idea " + (ideas.length + 1);
+  } else {
+    generateBtn.disabled = true;
+    generateBtn.textContent = "3 ideas complete";
+    showFinalChoice();
+  }
+}
+
+function renderIdeas() {
+  ideasEl.innerHTML = "";
+  ideas.forEach((idea, index) => {
+    const div = document.createElement("div");
+    div.className = "idea";
+    div.innerHTML = `
+      <div class="num">IDEA ${index + 1}</div>
+      <div class="p">${idea.product}</div>
+      <div style="color:var(--muted);margin-top:4px">+</div>
+      <div class="f">${idea.feature}</div>
+    `;
+    ideasEl.appendChild(div);
+  });
+
+  progressEl.textContent = ideas.length + " of 3 ideas saved";
+}
+
+function showFinalChoice() {
+  finalEl.style.display = "block";
+  choiceButtons.innerHTML = "";
+
+  ideas.forEach((idea, index) => {
+    const btn = document.createElement("button");
+    btn.textContent = "Choose Idea " + (index + 1);
+    btn.addEventListener("click", () => chooseWinner(index));
+    choiceButtons.appendChild(btn);
+  });
+}
+
+function chooseWinner(index) {
+  const idea = ideas[index];
+  winnerEl.style.display = "block";
+  winnerEl.innerHTML = `
+    <div style="font-size:.8rem;color:var(--muted);font-weight:800;letter-spacing:1px">YOUR PITCH IDEA</div>
+    <div style="font-size:1.5rem;font-weight:900;margin-top:6px">${idea.product} + ${idea.feature}</div>
+    <div style="margin-top:12px;color:var(--muted)">
+      Now define the <strong style="color:var(--text)">target customer</strong>,
+      identify the <strong style="color:var(--text)">pain point</strong>,
+      explain how the feature solves it, and write your
+      <strong style="color:var(--text)">value proposition</strong>.
+    </div>
+  `;
+}
+
+
+function skipIdea() {
+  if (!current || ideas.length >= 3) return;
+  current = null;
+  saveBtn.disabled = true;
+  skipBtn.disabled = true;
+  generateBtn.disabled = false;
+  generateBtn.textContent = "👋 SLAP ME! — Try Another for Idea " + (ideas.length + 1);
+}
+
+function resetGame() {
+  ideas = [];
+  current = null;
+  usedCombos.clear();
+  productEl.textContent = "Backpack";
+  featureEl.textContent = "Charges Your Phone";
+  generateBtn.disabled = false;
+  generateBtn.textContent = "👋 SLAP ME! — Generate Idea 1";
+  saveBtn.disabled = true;
+  skipBtn.disabled = true;
+  progressEl.textContent = "0 of 3 ideas saved";
+  ideasEl.innerHTML = "";
+  finalEl.style.display = "none";
+  choiceButtons.innerHTML = "";
+  winnerEl.style.display = "none";
+  winnerEl.innerHTML = "";
+}
+
+generateBtn.addEventListener("click", generateIdea);
+saveBtn.addEventListener("click", saveIdea);
+skipBtn.addEventListener("click", skipIdea);
+resetBtn.addEventListener("click", resetGame);
+</script>
+</body>
+</html>
